@@ -1,251 +1,82 @@
-# 🎓 Student CRUD — Spring Boot JDBC Application
+# 🛡️ Scholar Nexus — High-Integrity Academic Registry
 
-A **production-grade** Spring Boot REST API for managing students, built entirely with **JDBC (JdbcTemplate)** — no Hibernate/JPA.
+A production-grade, specialized management system for academic record integrity. Built with a high-performance **Spring Boot JDBC** core and a premium **Emerald-Gold React** interface.
 
-## Architecture
+## System Architecture
 
+```text
+Portal (Client) → Nexus Gatekeeper → Registry Manager → Scholar Vault → PostgreSQL
+(React + Framer)   (REST Gateway)    (Orchestration)    (JDBC Access)   (Storage)
 ```
-Client (Postman/curl) → Controller → Service → Repository → PostgreSQL
-                        (REST API)   (Rules)   (JDBC/SQL)   (Database)
-```
 
-## Tech Stack
+## Core Stack
 
-| Technology | Purpose |
-|-----------|---------|
-| Spring Boot 2.7.18 | Application framework |
-| Spring JDBC (JdbcTemplate) | Database operations (manual SQL, no ORM) |
-| PostgreSQL | Relational database |
-| HikariCP | Connection pooling |
-| Bean Validation | Input validation (`@NotBlank`, `@Email`, `@Size`) |
-| SLF4J + Logback | Logging |
-| Maven (with wrapper) | Build tool |
+| Layer | Technology |
+| :--- | :--- |
+| **Backend Engine** | Spring Boot 2.7.18 (JDK 8 Compatible) |
+| **Data Orchestration** | Spring JDBC (JdbcTemplate) |
+| **Database** | PostgreSQL |
+| **Frontend Portal** | React 18 + Vite |
+| **Styling & Motion** | Tailwind CSS v4 + Framer Motion |
+| **UX Enhancements** | Lenis Smooth Scroll + Lucide Icons |
 
 ---
 
-## 🚀 Quick Start
+## ⚡ Setup & Deployment
 
-### Prerequisites
-- **JDK 8+** — download from [Adoptium](https://adoptium.net/) (free)
-- **PostgreSQL** — download from [postgresql.org](https://www.postgresql.org/download/)
-- **Node.js** (v18+) — for the frontend
+### 1. Environment Requirements
+- **JDK 8 or higher**
+- **PostgreSQL Database Engine**
+- **Node.js 18+**
 
-### 1. Database Setup
-Open **psql** or **pgAdmin** and run:
+### 2. Vault Provisioning
+Execute the following in your SQL client to establish the data vault:
 ```sql
-CREATE DATABASE student_db;
+CREATE DATABASE nexus_db;
 ```
-> The `students` table is created **automatically** by `schema.sql` on app startup.
+The table structure (`academic_records`) is automatically provisioned via `schema.sql` on first launch.
 
-Edit `src/main/resources/application.properties` with your PostgreSQL password:
+### 3. Backend Configuration
+Configure your vault credentials in `src/main/resources/application.properties`:
 ```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/student_db
+spring.datasource.url=jdbc:postgresql://localhost:5432/nexus_db
 spring.datasource.username=postgres
-spring.datasource.password=YOUR_PASSWORD_HERE
+spring.datasource.password=YOUR_VAULT_KEY
 ```
 
-### 2. Run the Backend (Spring Boot)
-```bash
-# Open a terminal in the root directory
-# Set JAVA_HOME if not already set (e.g., set JAVA_HOME=C:\path\to\your\jdk)
-
-# Run using Maven wrapper (no Maven install required)
+### 4. System Launch
+**Backend Node:**
+```powershell
 .\mvnw.cmd spring-boot:run
 ```
-The API starts on **http://localhost:8080**.
 
-### 3. Run the Frontend (React + Vite)
-```bash
-# Open a new terminal
+**Frontend Portal:**
+```powershell
 cd frontend
-
-# Install dependencies (only needed once)
 npm install
-
-# Start the dev server
 npm run dev
 ```
-The premium UI starts on **http://localhost:5173**.
 
 ---
 
-## 📡 How to Perform CRUD Operations
+## 📡 Nexus API Integration
 
-> All examples use `curl`. You can also use **Postman** — just set the URL, method, headers, and body as shown below.
+| Objective | Endpoint | Method |
+| :--- | :--- | :--- |
+| **Fetch Registry** | `/nexus/scholars` | `GET` |
+| **Enroll Scholar** | `/nexus/scholars` | `POST` |
+| **Retrieve Record** | `/nexus/scholars/{sid}` | `GET` |
+| **Modify Record** | `/nexus/scholars/{sid}` | `PUT` |
+| **Purge Record** | `/nexus/scholars/{sid}` | `DELETE` |
 
-### ✅ CREATE a Student — `POST /students`
+## Design Philosophy
 
-```bash
-curl -X POST http://localhost:8080/students ^
-  -H "Content-Type: application/json" ^
-  -d "{\"name\": \"Anirudh Chauhan\", \"email\": \"anirudh@example.com\", \"course\": \"Computer Science\"}"
-```
-
-**Response (201 Created):**
-```json
-{
-    "id": 1,
-    "name": "Anirudh Chauhan",
-    "email": "anirudh@example.com",
-    "course": "Computer Science"
-}
-```
+The **Scholar Nexus** identity focuses on high-integrity academic data storage. 
+- **Emerald Palette**: Symbolizes growth and academic stability.
+- **Gold Accents**: Represents excellence and system authority.
+- **Spring-Based Motion**: Ensures the interface feels alive and responsive.
+- **JdbcTemplate Foundation**: Provides raw performance and granular SQL control without ORM overhead.
 
 ---
 
-### 📖 READ All Students — `GET /students`
-
-```bash
-curl http://localhost:8080/students
-```
-
-**Response (200 OK):**
-```json
-[
-    {
-        "id": 1,
-        "name": "Anirudh Chauhan",
-        "email": "anirudh@example.com",
-        "course": "Computer Science"
-    },
-    {
-        "id": 2,
-        "name": "Priya Sharma",
-        "email": "priya@example.com",
-        "course": "Data Science"
-    }
-]
-```
-
----
-
-### 🔍 READ a Student by ID — `GET /students/{id}`
-
-```bash
-curl http://localhost:8080/students/1
-```
-
-**Response (200 OK):**
-```json
-{
-    "id": 1,
-    "name": "Anirudh Chauhan",
-    "email": "anirudh@example.com",
-    "course": "Computer Science"
-}
-```
-
-**If not found (404):**
-```json
-{
-    "status": 404,
-    "error": "Not Found",
-    "message": "Student not found with id: 99",
-    "timestamp": "2026-04-29T14:30:00"
-}
-```
-
----
-
-### ✏️ UPDATE a Student — `PUT /students/{id}`
-
-```bash
-curl -X PUT http://localhost:8080/students/1 ^
-  -H "Content-Type: application/json" ^
-  -d "{\"name\": \"Anirudh C.\", \"email\": \"anirudh.updated@example.com\", \"course\": \"Data Science\"}"
-```
-
-**Response (200 OK):**
-```json
-{
-    "id": 1,
-    "name": "Anirudh C.",
-    "email": "anirudh.updated@example.com",
-    "course": "Data Science"
-}
-```
-
----
-
-### 🗑️ DELETE a Student — `DELETE /students/{id}`
-
-```bash
-curl -X DELETE http://localhost:8080/students/1
-```
-
-**Response:** `204 No Content` (empty body — the student has been deleted)
-
----
-
-### ❌ Error Responses
-
-**Validation error (missing/invalid fields):**
-```bash
-curl -X POST http://localhost:8080/students ^
-  -H "Content-Type: application/json" ^
-  -d "{\"name\": \"\", \"email\": \"invalid\", \"course\": \"\"}"
-```
-```json
-{
-    "status": 400,
-    "error": "Validation Failed",
-    "message": "name: Name is required and cannot be blank; email: Email must be a valid email address; course: Course is required and cannot be blank",
-    "timestamp": "2026-04-29T14:36:00"
-}
-```
-
-**Duplicate email:**
-```json
-{
-    "status": 409,
-    "error": "Conflict",
-    "message": "A student with email 'anirudh@example.com' already exists",
-    "timestamp": "2026-04-29T14:37:00"
-}
-```
-
----
-
-## 📂 Project Structure
-
-```
-src/main/java/com/student/
-├── StudentCrudJdbcApplication.java     # Entry point (@SpringBootApplication)
-├── controller/
-│   └── StudentController.java          # REST endpoints (POST, GET, PUT, DELETE)
-├── service/
-│   ├── StudentService.java             # Business logic interface
-│   └── StudentServiceImpl.java         # Business logic implementation
-├── repository/
-│   ├── StudentRepository.java          # Data access interface
-│   └── StudentJdbcRepository.java      # JDBC implementation (JdbcTemplate)
-├── model/
-│   └── Student.java                    # POJO entity (id, name, email, course)
-└── exception/
-    ├── StudentNotFoundException.java   # 404 exception
-    ├── DuplicateEmailException.java    # 409 exception
-    ├── GlobalExceptionHandler.java     # @ControllerAdvice (centralized error handling)
-    └── ErrorResponse.java              # Structured error JSON
-```
-
-## API Reference
-
-| Method | Endpoint | Description | Success | Failure |
-|--------|----------|-------------|---------|---------|
-| `POST` | `/students` | Create a student | `201 Created` | `400` / `409` |
-| `GET` | `/students` | Retrieve all students | `200 OK` | — |
-| `GET` | `/students/{id}` | Retrieve student by ID | `200 OK` | `404` |
-| `PUT` | `/students/{id}` | Update a student | `200 OK` | `400` / `404` / `409` |
-| `DELETE` | `/students/{id}` | Delete a student | `204 No Content` | `404` |
-
-## Key Design Decisions
-
-- **JDBC (not Hibernate)** — Full SQL control, manual query writing, `JdbcTemplate` for boilerplate reduction
-- **Layered architecture** — Controller → Service → Repository (separation of concerns)
-- **Interface-based design** — Repository and Service use interfaces for loose coupling
-- **Connection pooling** — HikariCP (configured in `application.properties`)
-- **Input validation** — `@NotBlank`, `@Email`, `@Size` on the entity + `@Valid` in controller
-- **Global error handling** — `@ControllerAdvice` for consistent error responses
-
-## Author
-Anirudh Chauhan — Mid-term Project, 6th Semester
+**Developed for the Academic Nexus Initiative.**
